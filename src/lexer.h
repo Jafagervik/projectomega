@@ -37,13 +37,15 @@ const static std::map<std::string, TokenType> keywords = {
  *
  */
 typedef struct Lexer {
+        // TODO: Add more files when dealing with
+        //
         std::string_view source_file;
         std::vector<char> data;
         std::vector<std::unique_ptr<Token>> token_list;
 
-        uint32_t cursor;            // Where we're at in the iterator
-        uint32_t beginning_of_line; // Set to 0 each \n
-        uint32_t line;              // Incremented each \n
+        u32 cursor;            // Where we're at in the iterator
+        u32 beginning_of_line; // Set to 0 each \n
+        u32 line;              // Incremented each \n
         std::vector<char>::iterator cursor_itr;
 
         // Construtor
@@ -52,6 +54,9 @@ typedef struct Lexer {
               beginning_of_line{0}, line{0} {
             // Alternative to cursor
             this->cursor_itr = this->data.begin();
+
+            // TODO: Look into buffering of tokens.
+            // eg. every amount of tokens, buffer and send to parser?
             this->token_list = std::vector<std::unique_ptr<Token>>();
             token_list.reserve(2000);
         }
@@ -65,13 +70,13 @@ typedef struct Lexer {
         char peek();
         char peek_n_ahead(uint32_t n);
 
+        bool match(char expected_char); // LOOKAHEAD
+
         void add_token(TokenType type);                     // For symbols
         void add_token(TokenType type, std::string lexeme); // for literals
 
         bool end_of_file();
         void advance(); // Advance iterator to next char
-
-        bool match(char expected_char);
 
         // Lexer errors
         void throw_lexer_error(LEXER_ERROR error_code);
@@ -80,5 +85,5 @@ typedef struct Lexer {
         //  Methods for handling lexemes
         // ===============================
         void string_lexeme();
-        void number_lexeme(); // float or integer
+        void number_lexeme();
 } Lexer;

@@ -5,64 +5,57 @@
 #include <algorithm>
 #include <fstream>
 #include <iostream>
-#include <string>
 #include <utility>
 #include <vector>
+#include "pch.h"
 
-typedef enum ErrorCodes {
-  FileNotFound = -1,
-  EndOfFile = 2,
-  TokenError,
-} ErrorCodes;
+typedef enum ReturnCode {
+    Success = 0,
+    FileNotFound,
+    EndOfFile,
+    TokenError,
+} ReturnCode;
 
 int main(int argc, char *argv[]) {
-  if (argc < 2)
-    std::cout << "Too few arguments\n";
+    if (argc < 2)
+        std::cout << "Too few arguments\n";
 
-  const std::vector<std::string_view> args(argv + 1, argv + argc);
+    // MEME for now
+    // std::cout << NAME << std::endl;
 
-  for (const auto &option : args) {
-    if (option == "--help" || option == "-h")
-      std::cout << MENU;
-  }
-  // TODO: MOVE
+    const std::vector<std::string_view> args(argv + 1, argv + argc);
 
-  // Get name of file you wanna run and make this do the heavy lifting
-  char *filename = argv[1];
-  std::ifstream file(filename, std::ios::binary);
+    for (const auto &option : args) {
+        if (option == "--help" || option == "-h")
+            std::cout << MENU;
+    }
+    // TODO: MOVE
 
-  std::vector<char> payload;
+    char *filename = argv[1];
+    std::ifstream file(filename, std::ios::binary);
 
-  if (!file.eof() && !file.fail()) {
-    file.seekg(0, std::ios_base::end);
-    std::streampos fileSize = file.tellg();
-    payload.resize(fileSize);
+    std::vector<char> payload;
 
-    file.seekg(0, std::ios_base::beg);
-    file.read(&payload[0], fileSize);
-  }
+    fill_byte_buffer(&payload, &file);
 
-  std::cout << payload.size() << std::endl;
+    std::cout << payload.size() << std::endl;
 
-  std::for_each(payload.begin(), payload.end(),
-                [](const char &c) { std::cout << c << ""; });
+    std::for_each(payload.begin(), payload.end(),
+                  [](const char &c) { std::cout << c << " "; });
 
-  // Lex
-  auto lexer = Lexer(filename, payload);
+    // Lex
+    auto lexer = Lexer(filename, payload);
 
-  lexer.tokenize();
+    lexer.tokenize();
 
-  std::cout << lexer.token_list.size() << std::endl;
+    std::cout << lexer.token_list.size() << std::endl;
 
-  // TODO: Tokenlist should be turned into iterator
+    // TODO: Tokenlist should be turned into iterator
 
-  std::for_each(lexer.token_list.begin(), lexer.token_list.end(),
-                [](const auto &t) { std::cout << *t << ' '; });
+    std::for_each(lexer.token_list.begin(), lexer.token_list.end(),
+                  [](const auto &t) { std::cout << *t << ' '; });
 
-  // Parser
-  // auto parser = Parser();
+    file.close();
 
-  file.close();
-
-  return 0;
+    return Success;
 }
