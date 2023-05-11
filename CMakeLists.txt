@@ -21,6 +21,13 @@ if(BUILD_TESTING)
   add_subdirectory(test)
 endif()
 
+# Testing 
+find_package(Catch2 3 REQUIRED)
+
+# These tests can use the Catch2-provided main
+add_executable(tests test/lexer_test.cpp)
+target_link_libraries(tests PRIVATE Catch2::Catch2WithMain)
+
 #set (CMAKE_CXX_FLAGS "-o2")
 
 # target_compile_options(./build/flux PRIVATE -o3)
